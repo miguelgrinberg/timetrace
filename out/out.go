@@ -52,6 +52,8 @@ func Err(format string, a ...interface{}) {
 func Table(header []string, rows [][]string, footer []string, opts ...TableOption) {
     paddedHeaders := headersWithPadding(header)
     table := tablewriter.NewWriter(os.Stdout)
+    table.SetAutoWrapText(false)
+    table.SetReflowDuringAutoWrap(false)
     table.SetHeader(paddedHeaders)
     setHeaderColor(table, paddedHeaders)
     // If footer array is not empty, then render footer in table.

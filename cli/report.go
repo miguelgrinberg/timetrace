@@ -18,6 +18,7 @@ type reportOptions struct {
     filePath      string
     startTime     string
     endTime       string
+    calculateBill bool
 }
 
 func generateReportCommand(t *core.Timetrace) *cobra.Command {
@@ -86,7 +87,7 @@ func generateReportCommand(t *core.Timetrace) *cobra.Command {
                 }
                 t.WriteReport(options.filePath, data)
             default:
-                projects, total := report.Table()
+                projects, total := report.Table(options.calculateBill)
                 out.Table(
                     []string{"Project", "Module", "Date", "Start", "End", "Billable", "Total"},
                     projects,
@@ -122,6 +123,9 @@ func generateReportCommand(t *core.Timetrace) *cobra.Command {
 
     report.Flags().StringVarP(&options.filePath, "file", "f",
         "", "file to write report to")
+
+    report.Flags().BoolVarP(&options.calculateBill, "calculate-bill", "c",
+        false, "calculate bill amounts")
 
     return report
 }

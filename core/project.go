@@ -24,6 +24,7 @@ var (
 
 type Project struct {
     Key string `json:"key"`
+    Rate float64 `json:"rate"`
 }
 
 // Parent returns the parent project of the current project or an empty string

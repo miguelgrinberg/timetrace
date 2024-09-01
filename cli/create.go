@@ -24,7 +24,12 @@ func createCommand(t *core.Timetrace) *cobra.Command {
     return create
 }
 
+type createProjectOptions struct {
+    rate float64
+}
+
 func createProjectCommand(t *core.Timetrace) *cobra.Command {
+    var options createProjectOptions
     createProject := &cobra.Command{
         Use:   "project <KEY>",
         Short: "Create a new project",
@@ -34,6 +39,7 @@ func createProjectCommand(t *core.Timetrace) *cobra.Command {
 
             project := core.Project{
                 Key: key,
+                Rate: options.rate,
             }
 
             if err := t.SaveProject(project, false); err != nil {
@@ -44,6 +50,9 @@ func createProjectCommand(t *core.Timetrace) *cobra.Command {
             out.Success("Created project %s", key)
         },
     }
+
+    createProject.Flags().Float64VarP(&options.rate, "rate", "r",
+        0, `hourly rate`)
 
     return createProject
 }

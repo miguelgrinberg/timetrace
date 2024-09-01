@@ -128,3 +128,7 @@ func (f *Formatter) FormatTags(tags []string) string {
 
     return result
 }
+
+func (f *Formatter) FormatBill(hours float64, rate float64) string {
+    return fmt.Sprintf("%.0fx%.0f = $%.0f", hours, rate, hours * rate)
+}

@@ -3,8 +3,10 @@ package core
 import (
     "encoding/json"
     "fmt"
+    "math"
     "strings"
     "time"
+    "github.com/dominikbraun/timetrace/out"
 )
 
 const (
@@ -108,11 +110,13 @@ func (r *Reporter) sortAndMerge(records []*Record) {
 // Table prepares the r.report and r.totals data in a way that it can be consumed by the out.Table
 // It returns a [][]string where each []string represents one record of a project and
 // the total sum of time for all projects
-func (r Reporter) Table() ([][]string, string) {
+func (r Reporter) Table(calculateBill bool) ([][]string, string) {
     var rows = make([][]string, 0)
     var totalSum time.Duration
+    var totalBill float64
 
     for key, records := range r.report {
+        var billableHours time.Duration
         for _, record := range records {
             keyParts := strings.Split(record.Project.Key, "@")
             module, key := "", keyParts[0]
@@ -123,6 +127,7 @@ func (r Reporter) Table() ([][]string, string) {
             billable := "no"
             if record.IsBillable {
                 billable = "yes"
+                billableHours += record.Duration()
             }
             date := r.t.Formatter().PrettyDateString(record.Start)
             start := r.t.Formatter().TimeString(record.Start)
@@ -130,11 +135,30 @@ func (r Reporter) Table() ([][]string, string) {
 
             rows = append(rows, []string{key, module, date, start, end, billable, ""})
         }
+
+        projectTotal := r.t.Formatter().FormatDuration(r.totals[key])
+        if calculateBill {
+            // round billable hours up
+            roundedBillableHours := math.Round(billableHours.Hours())
+            project, err := r.t.LoadProject(key)
+            if err != nil {
+                out.Err("failed to get project: %s", key)
+                return make([][]string, 0), ""
+            }
+
+            projectTotal = fmt.Sprintf("%s\n%s", projectTotal, r.t.Formatter().FormatBill(roundedBillableHours, project.Rate))
+            totalBill += roundedBillableHours * project.Rate
+        }
+
         // append with last row for total of tracked time for project
-        rows = append(rows, []string{"", "", "", "", "", defaultTotalSymbol, r.t.Formatter().FormatDuration(r.totals[key])})
+        rows = append(rows, []string{"", "", "", "", "", defaultTotalSymbol, projectTotal})
         totalSum += r.totals[key]
     }
-    return rows, r.t.Formatter().FormatDuration(totalSum)
+    grandTotal := r.t.Formatter().FormatDuration(totalSum)
+    if calculateBill {
+        grandTotal = fmt.Sprintf("%s\n$%.0f", grandTotal, totalBill)
+    }
+    return rows, grandTotal
 }
 
 // Json prepares the r.report and r.totals data so that it can be written to a json file
