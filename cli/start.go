@@ -34,15 +34,19 @@ func startCommand(t *core.Timetrace) *cobra.Command {
                 return
             }
 
-            isBillable := options.isBillable
-
-            // If there is a default configuration for the project key, use that configuration.
-            if projectConfig, ok := t.Config().Projects[projectKey]; ok {
-                isBillable = projectConfig.Billable
-            }
-
-            if options.isNonBillable {
+            config := t.Config()
+            isBillable := config.Billable
+            if options.isBillable {
+                isBillable = true
+            } else if options.isNonBillable {
                 isBillable = false
+            } else {
+                // If there is a default configuration for the project key, use that configuration.
+                if projectConfig, ok := config.Projects[projectKey]; ok {
+                    if projectConfig.Billable != "" {
+                        isBillable = projectConfig.Billable == "true"
+                    }
+                }
             }
 
             tagNames, err := extractTagNames(tags)
@@ -63,8 +67,8 @@ func startCommand(t *core.Timetrace) *cobra.Command {
     start.Flags().BoolVarP(&options.isBillable, "billable", "b",
         false, `mark tracked time as billable`)
 
-    start.Flags().BoolVar(&options.isNonBillable, "non-billable",
-        false, `mark tracked time as non-billable if the project is configured as billable`)
+    start.Flags().BoolVarP(&options.isNonBillable, "non-billable", "B",
+        false, `mark tracked time as non-billable`)
 
     return start
 }

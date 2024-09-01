@@ -11,11 +11,12 @@ type Config struct {
     UseDecimalHours string             `json:"usedecimalhours"` //"On", "Off", "Both" valid values
     Editor          string             `json:"editor"`
     ReportPath      string             `json:"report-path"`
+    Billable        bool               `json:"billable"`
     Projects        map[string]Project `json:"projects"`
 }
 
 type Project struct {
-    Billable bool `json:"billable"`
+    Billable string `json:"billable"`
 }
 
 var cached *Config

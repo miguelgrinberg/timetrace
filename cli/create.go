@@ -99,11 +99,26 @@ func createRecordCommand(t *core.Timetrace) *cobra.Command {
                 return
             }
 
+            config := t.Config()
+            isBillable := config.Billable
+            if options.isBillable {
+                isBillable = true
+            } else if options.isNonBillable {
+                isBillable = false
+            } else {
+                // If there is a default configuration for the project key, use that configuration.
+                if projectConfig, ok := config.Projects[key]; ok {
+                    if projectConfig.Billable != "" {
+                        isBillable = projectConfig.Billable == "true"
+                    }
+                }
+            }
+
             record := core.Record{
                 Project:    project,
                 Start:      start,
                 End:        &end,
-                IsBillable: options.isBillable,
+                IsBillable: isBillable,
             }
 
             collides, err := t.RecordCollides(record)
@@ -126,6 +141,9 @@ func createRecordCommand(t *core.Timetrace) *cobra.Command {
 
     createRecord.Flags().BoolVarP(&options.isBillable, "billable", "b",
         false, `mark tracked time as billable`)
+
+    createRecord.Flags().BoolVarP(&options.isNonBillable, "non-billable", "B",
+        false, `mark tracked time as non-billable`)
 
     return createRecord
 }
