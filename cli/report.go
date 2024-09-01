@@ -25,8 +25,8 @@ func generateReportCommand(t *core.Timetrace) *cobra.Command {
 
 	report := &cobra.Command{
 		Use:    "report",
-		Short:  "Report allows to view or output tracked records as defined report",
-		Hidden: true,
+		Short:  "Generate a report of tracked records",
+		Hidden: false,
 		Run: func(cmd *cobra.Command, args []string) {
 			var startDate, endDate time.Time
 			var formatErr error
