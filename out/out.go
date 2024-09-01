@@ -12,6 +12,13 @@ import (
 
 var (
 	// used for the headers on the tables
+	foregroundColor = []int{
+		tablewriter.FgBlackColor,
+		tablewriter.FgWhiteColor,
+		tablewriter.FgBlackColor,
+		tablewriter.FgWhiteColor,
+		tablewriter.FgBlackColor,
+	}
 	backgroundColor = []int{
 		tablewriter.BgCyanColor,
 		tablewriter.BgMagentaColor,
@@ -67,7 +74,7 @@ func Table(header []string, rows [][]string, footer []string, opts ...TableOptio
 func setHeaderColor(table *tablewriter.Table, header []string) {
 	colors := []tablewriter.Colors{}
 	for i := range header {
-		color := tablewriter.Colors{tablewriter.Bold, backgroundColor[i%len(backgroundColor)]}
+		color := tablewriter.Colors{foregroundColor[i%len(foregroundColor)], tablewriter.Bold, backgroundColor[i%len(backgroundColor)]}
 		colors = append(colors, color)
 	}
 	table.SetHeaderColor(colors...)
