@@ -2,20 +2,20 @@
 package config
 
 import (
-	"github.com/spf13/viper"
+    "github.com/spf13/viper"
 )
 
 type Config struct {
-	Store           string             `json:"store"`
-	Use12Hours      bool               `json:"use12hours"`
-	UseDecimalHours string             `json:"usedecimalhours"` //"On", "Off", "Both" valid values
-	Editor          string             `json:"editor"`
-	ReportPath      string             `json:"report-path"`
-	Projects        map[string]Project `json:"projects"`
+    Store           string             `json:"store"`
+    Use12Hours      bool               `json:"use12hours"`
+    UseDecimalHours string             `json:"usedecimalhours"` //"On", "Off", "Both" valid values
+    Editor          string             `json:"editor"`
+    ReportPath      string             `json:"report-path"`
+    Projects        map[string]Project `json:"projects"`
 }
 
 type Project struct {
-	Billable bool `json:"billable"`
+    Billable bool `json:"billable"`
 }
 
 var cached *Config
@@ -24,34 +24,34 @@ var cached *Config
 // Config instance. If no configuration file is found, nil and no error will be
 // returned. The configuration must live in one of the following directories:
 //
-//	- /etc/timetrace
-//	- $HOME/.timetrace
-//	- .
+//    - /etc/timetrace
+//    - $HOME/.timetrace
+//    - .
 //
 // In case multiple configuration files are found, the one in the most specific
 // or "closest" directory will be preferred.
 func FromFile() (*Config, error) {
-	viper.SetConfigName("config")
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath("/etc/timetrace/")
-	viper.AddConfigPath("$HOME/.timetrace")
-	viper.AddConfigPath(".")
+    viper.SetConfigName("config")
+    viper.SetConfigType("yaml")
+    viper.AddConfigPath("/etc/timetrace/")
+    viper.AddConfigPath("$HOME/.timetrace")
+    viper.AddConfigPath(".")
 
-	if err := viper.ReadInConfig(); err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
-			return nil, err
-		}
-	}
+    if err := viper.ReadInConfig(); err != nil {
+        if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
+            return nil, err
+        }
+    }
 
-	var config Config
+    var config Config
 
-	if err := viper.Unmarshal(&config); err != nil {
-		return nil, err
-	}
+    if err := viper.Unmarshal(&config); err != nil {
+        return nil, err
+    }
 
-	cached = &config
+    cached = &config
 
-	return cached, nil
+    return cached, nil
 }
 
 // Get returns the parsed configuration. The fields of this configuration either
@@ -61,14 +61,14 @@ func FromFile() (*Config, error) {
 // Using Get over FromFile avoids the config file from being parsed each time
 // the config is needed.
 func Get() *Config {
-	if cached != nil {
-		return cached
-	}
+    if cached != nil {
+        return cached
+    }
 
-	config, err := FromFile()
-	if err != nil {
-		return &Config{}
-	}
+    config, err := FromFile()
+    if err != nil {
+        return &Config{}
+    }
 
-	return config
+    return config
 }
